@@ -1,56 +1,28 @@
-use crate::card::{Card, CardType, CardValue};
 use rand::seq::SliceRandom;
-use std::fmt;
+
+use crate::card::{Card, RANK_MAP, SUIT_MAP};
 
 pub struct Deck {
     pub cards: Vec<Card>,
-}
-
-impl fmt::Display for Deck {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        for card in &self.cards {
-            writeln!(f, "{}", card)?;
-        }
-        Ok(())
-    }
+    pub pack_count: u8,
 }
 
 impl Deck {
-    pub fn shuffle_deck(cards: &mut Vec<Card>) {
+    pub fn shuffle_deck(&mut self) {
         let mut rng = rand::thread_rng();
-        cards.shuffle(&mut rng);
+        self.cards.shuffle(&mut rng);
     }
-    pub fn new(pack_count: u8) -> Vec<Card> {
+    pub fn new(pack_count: u8) -> Deck {
         let mut cards = Vec::new();
-
-        for ct in &[
-            CardType::Clover,
-            CardType::Spades,
-            CardType::Tile,
-            CardType::Heart,
-        ] {
-            for cv in &[
-                CardValue::Number(2),
-                CardValue::Number(3),
-                CardValue::Number(4),
-                CardValue::Number(5),
-                CardValue::Number(6),
-                CardValue::Number(7),
-                CardValue::Number(8),
-                CardValue::Number(9),
-                CardValue::Number(10),
-                CardValue::Jack,
-                CardValue::Queen,
-                CardValue::King,
-                CardValue::Ace,
-            ] {
-                if let CardValue::Number(n) = cv {
-                    cards.push(Card::new(ct.clone(), CardValue::Number(n.to_owned())));
-                } else {
-                    cards.push(Card::new(ct.clone(), cv.clone()));
-                }
-            }
+        RANK_MAP.into_iter().for_each(|rank| {
+            SUIT_MAP.into_iter().for_each(|suit| {
+                let new_card = rank.0.to_string() + &suit.0.to_string();
+                cards.push(Card::from_name(new_card));
+            });
+        });
+        Deck {
+            cards: cards,
+            pack_count: pack_count,
         }
-        cards
     }
 }

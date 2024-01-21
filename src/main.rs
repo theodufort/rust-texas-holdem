@@ -1,29 +1,42 @@
-// You may need to use the #[path] attribute if the modules are not in the same directory.
-#[path = "game.rs"]
-mod game;
-
-#[path = "card.rs"]
+// lib.rs
 mod card;
-
-#[path = "deck.rs"]
 mod deck;
-
-#[path = "player.rs"]
+mod dptables;
+mod evaluator;
+mod evaluator7;
+mod game;
+mod hand;
+mod hash;
+mod hash_table7;
+mod hashtable;
 mod player;
+mod rank;
+mod seven_four_six_two;
+
+// Export relevant types for external use
+pub use card::Card;
+pub use deck::Deck;
+pub use evaluator::evaluate_cards;
+use evaluator7::evaluate_7cards;
+pub use game::Game;
+pub use player::Player;
+fn get_rank_of_7_perfect() {
+    let rank = evaluate_cards(
+        &Card::from_name("Tc".to_string()),
+        &Card::from_name("Jc".to_string()),
+        &Card::from_name("Qc".to_string()),
+        &Card::from_name("Kc".to_string()),
+        &Card::from_name("Ac".to_string()),
+        &Card::from_name("2c".to_string()),
+        &Card::from_name("9c".to_string()),
+    );
+    println!("{}", rank.value())
+}
 fn main() {
-    let mut _game = game::Game::new(5);
-    _game.play_turn();
-    _game.play_turn();
-    _game.play_turn();
-    _game.play_turn();
-    _game.play_turn();
-    for player in &_game.players {
-        let mut concat_cards = player.cards.clone();
-        concat_cards.extend(_game.community_cards.clone());
-        println!(
-            "{:?} {:?}",
-            _game.check_hand_rank(&concat_cards),
-            concat_cards
-        );
-    }
+    // let mut game = Game::new(5, 1000.0);
+    // game.play_turn();
+    // game.play_turn();
+    // game.play_turn();
+    // game.play_turn();
+    get_rank_of_7_perfect();
 }
