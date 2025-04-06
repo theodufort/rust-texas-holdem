@@ -13,7 +13,7 @@ mod player;
 mod rank;
 mod seven_four_six_two;
 
-use std::io;
+use std::io::{self, Read};
 
 // Export relevant types for external use
 pub use card::Card;
@@ -41,6 +41,36 @@ fn get_rank_of_7_perfect(cards: Vec<&str>) -> i32 {
     );
     rank
 }
+fn display_all_cards() -> Vec<String> {
+    let ranks = [
+        '2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A',
+    ];
+    let suits = ['c', 'd', 'h', 's'];
+    let mut cards = Vec::new();
+
+    for (i, rank) in ranks.iter().enumerate() {
+        for (j, suit) in suits.iter().enumerate() {
+            let card_name = format!("{}{}", rank, suit);
+            let card_number = i * 4 + j + 1;
+            println!(
+                "{}. {}",
+                card_number,
+                Card::from_name(card_name.clone()).to_clean_name()
+            );
+            cards.push(card_name);
+        }
+    }
+    cards
+}
+
+fn get_card_by_number(card_number: usize, all_cards: &Vec<String>) -> String {
+    if card_number > 0 && card_number <= all_cards.len() {
+        all_cards[card_number - 1].clone()
+    } else {
+        panic!("Invalid card number");
+    }
+}
+
 fn calculatePersonalHand() {
     // Input number of players
     let mut num_players_input = String::new();
@@ -66,32 +96,55 @@ fn calculatePersonalHand() {
         }
     };
 
+    // Display all cards with numbers
+    println!("\nAvailable cards:");
+    let all_cards = display_all_cards();
+
     // Input 2 cards
-    // let mut cards_input = String::new();
-    // println!("Enter your 2 cards as (1,2):");
-    // io::stdin().read_line(&mut cards_input).unwrap();
-    // let cards: Vec<&str> = cards_input.trim().split(',').collect();
-    // if cards.len() != 2 {
-    //     println!("Invalid input for cards. Please enter exactly 2 cards in the format (1,2).");
-    //     return;
-    // }
-    let cards: Vec<&str> = vec!["TC", "JC"];
+    let mut cards_input = String::new();
+    println!("\nEnter your 2 cards as numbers (e.g., 1,2):");
+    io::stdin().read_line(&mut cards_input).unwrap();
+    let card_numbers: Vec<usize> = cards_input
+        .trim()
+        .split(',')
+        .map(|s| s.trim().parse().unwrap())
+        .collect();
+    if card_numbers.len() != 2 {
+        println!(
+            "Invalid input for cards. Please enter exactly 2 card numbers in the format (1,2)."
+        );
+        return;
+    }
+
+    let cards: Vec<String> = card_numbers
+        .iter()
+        .map(|&num| get_card_by_number(num, &all_cards))
+        .collect();
 
     // Input 5 middle cards
-    // let mut cards_middle_input = String::new();
-    // println!("Enter the 5 cards in the middle as (1,2,3,4,5):");
-    // io::stdin().read_line(&mut cards_middle_input).unwrap();
-    // let cards_middle: Vec<&str> = cards_middle_input.trim().split(',').collect();
-    // if cards_middle.len() != 5 {
-    //     println!("Invalid input for middle cards. Please enter exactly 5 cards in the format (1,2,3,4,5).");
-    //     return;
-    // }
-    let cards_middle: Vec<&str> = vec!["2C", "2H", "3H", "5C", "4C"];
+    let mut cards_middle_input = String::new();
+    println!("\nEnter the 5 cards in the middle as numbers (e.g., 1,2,3,4,5):");
+    io::stdin().read_line(&mut cards_middle_input).unwrap();
+    let middle_card_numbers: Vec<usize> = cards_middle_input
+        .trim()
+        .split(',')
+        .map(|s| s.trim().parse().unwrap())
+        .collect();
+    if middle_card_numbers.len() != 5 {
+        println!("Invalid input for middle cards. Please enter exactly 5 card numbers in the format (1,2,3,4,5).");
+        return;
+    }
+
+    let cards_middle: Vec<String> = middle_card_numbers
+        .iter()
+        .map(|&num| get_card_by_number(num, &all_cards))
+        .collect();
 
     // Combine the cards into a single vector
     let mut all_cards: Vec<&str> = Vec::new();
-    all_cards.extend(cards);
-    all_cards.extend(cards_middle);
+    all_cards.extend(cards.iter().map(|s| s.as_str()));
+    all_cards.extend(cards_middle.iter().map(|s| s.as_str()));
+
     println!("All cards: {:?}", all_cards);
     let rank = get_rank_of_7_perfect(all_cards);
     let rank_category = describe_rank_category(get_rank_category(rank));
@@ -100,10 +153,5 @@ fn calculatePersonalHand() {
 }
 fn main() {
     // let mut game = Game::new(5, 1000.0);
-    // game.play_turn();
-    // game.play_turn();
-    // game.play_turn();
-    // game.play_turn();
-    // get_rank_of_7_perfect();
     calculatePersonalHand();
 }
