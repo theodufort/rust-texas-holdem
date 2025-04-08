@@ -5,6 +5,10 @@ pub fn hash_quinary(q: &[u8], mut k: i32) -> u32 {
     const LEN: i32 = 13;
 
     for i in 0..LEN {
+        if i as usize >= q.len() || q[i as usize] as usize >= 5 {
+            break;
+        }
+
         sum += DP[q[i as usize] as usize][(LEN - i - 1) as usize][k as usize];
 
         k -= q[i as usize] as i32;
